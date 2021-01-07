@@ -2,16 +2,29 @@
   <div class="user-profile">
     <div class="user-profile__user-panel">
       <h1 class="user-profile__username">@{{ user.username }}</h1>
-      <div class="user-profile__admin-badge" v-if="user.isAdmin">
-        Admin
-      </div>
+      <div class="user-profile__admin-badge" v-if="user.isAdmin">Admin</div>
       <div class="user-profile__follower-count">
         <strong> Followers: </strong>{{ followers }}
       </div>
-      <form class="user-profile__create-tweet">
+
+      <form class="user-profile__create-tweet" @submit.prevent="createNewTweet">
         <label for="newTweet"><strong>New Tweet</strong></label>
-        <textarea id="newTweet" rows="4"></textarea>
+        <textarea id="newTweet" rows="4" v-model="newTweetContent"></textarea>
       </form>
+
+    <div class="user-profile__create-tweet-type">
+      <label for="newTweetType"><strong>Type: </strong></label>
+      <select id="newTweetType" v-model="selectedTweetType">
+        <option
+          value="option.value"
+          v-for="(option, index) in tweetTypes"
+          :key="index"
+        >
+          {{ option.name }}
+        </option>
+      </select>
+      <button>Tweet!</button>
+    </div>
     </div>
 
     <div class="user-profile_tweet-wrapper">
@@ -34,6 +47,12 @@ export default {
   name: "UserProfile",
   data() {
     return {
+      newTweetContent: "",
+      selectedTweetType: "instant",
+      tweetTypes: [
+        { value: "draft", name: "Draft" },
+        { value: "instant", name: "Instant Tweet" },
+      ],
       followers: 0,
       user: {
         id: 1,
@@ -67,6 +86,15 @@ export default {
     },
     toggleFavourite(id) {
       console.log(`Favourited Tweet #${id}`);
+    },
+    createNewTweet() {
+      if (this.newTweetContent && this.selectedTweetType !== "draft") {
+        this.user.tweet.unshift({
+          id: this.user.tweet.length + 1,
+          content: this.newTweetContent,
+        });
+        this.newTweetContent = "";
+      }
     },
   },
   mounted() {
